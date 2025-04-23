@@ -2,7 +2,6 @@ package auth
 
 import (
 	"errors"
-	"fmt"
 	"go-monitoring/internal/models"
 	"go-monitoring/internal/repository"
 
@@ -17,14 +16,14 @@ func NewAuthService(userRepository *repository.UserRepository) *AuthService {
 	return &AuthService{UserRepository: userRepository}
 }
 
-func (service *AuthService) Register(email, password, name string) (string, error) {
+func (service *AuthService) Register(email, password, name string) (uint, error) {
 	exsistedUser, _ := service.UserRepository.FindByEmail(email)
 	if exsistedUser != nil {
-		return "", errors.New(ErrUserExists)
+		return 0, errors.New(ErrUserExists)
 	}
 	hashedPasowrd, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 	user := &models.User{
 		Email:    email,
@@ -33,22 +32,21 @@ func (service *AuthService) Register(email, password, name string) (string, erro
 	}
 	_, err = service.UserRepository.Create(user)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
-	return user.Email, nil
+	return user.ID, nil
 }
 
-func (service *AuthService) Login(email, password string) (string, error) {
+func (service *AuthService) Login(email, password string) (uint, error) {
 	user, _ := service.UserRepository.FindByEmail(email)
-	fmt.Println(user)
 	if user == nil {
-		return "", errors.New(ErrWrongCredentials)
+		return 0, errors.New(ErrWrongCredentials)
 	}
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		return "", errors.New(ErrWrongCredentials)
+		return 0, errors.New(ErrWrongCredentials)
 	}
 
-	return user.Email, nil
+	return user.ID, nil
 }
 

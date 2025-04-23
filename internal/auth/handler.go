@@ -33,13 +33,13 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 		if err != nil {
 			return
 		}
-		email, err := handler.AuthService.Login(body.Email, body.Password)
+		userId, err := handler.AuthService.Login(body.Email, body.Password)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
 		token, err := jwt.NewJWT(handler.Config.Auth.Secret).Create(jwt.JWTData{
-			Email: email,
+			UserID: userId,
 		})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -59,13 +59,13 @@ func (handler *AuthHandler) Register() http.HandlerFunc {
 		if err != nil {
 			return
 		}
-		email, err := handler.AuthService.Register(body.Email, body.Password, body.Name)
+		userId, err := handler.AuthService.Register(body.Email, body.Password, body.Name)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
 		token, err := jwt.NewJWT(handler.Config.Auth.Secret).Create(jwt.JWTData{
-			Email: email,
+			UserID: userId,
 		})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -2,40 +2,37 @@ package middleware
 
 import (
 	"context"
+	"go-monitoring/config"
+	"go-monitoring/pkg/jwt"
 	"net/http"
 	"strings"
-	"github.com/golang-jwt/jwt/v5"
 )
 
-func AuthMiddleware(next http.Handler) http.Handler {
+type key string
+
+const (
+	ContextUserKey key = "ContextUserKey"
+)
+
+func writeUnathed(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusUnauthorized)
+	w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
+}
+
+func IsAuthed(next http.Handler, config *configs.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tokenStr := r.Header.Get("Authorization")
-		if tokenStr == "" {
-			http.Error(w, "Missing token", http.StatusUnauthorized)
+		authedHeader := r.Header.Get("Authorization")
+		if !strings.HasPrefix(authedHeader, "Bearer ") {
+			writeUnathed(w)
 			return
 		}
-
-		tokenStr = strings.TrimPrefix(tokenStr, "Bearer ")
-
-		token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodEd25519); !ok {
-				return nil, http.ErrAbortHandler
-			}
-			return []byte("your_jwt_secret"), nil
-		})
-
-		if err != nil || !token.Valid {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
+		token := strings.TrimPrefix(authedHeader, "Bearer ")
+		isValid, data := jwt.NewJWT(config.Auth.Secret).Parse(token)
+		if !isValid {
+			writeUnathed(w)
 			return
 		}
-
-		claims, ok := token.Claims.(*jwt.RegisteredClaims)
-		if !ok {
-			http.Error(w, "Invalid token claims", http.StatusUnauthorized)
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), "userID", claims.Subject)
+		ctx := context.WithValue(r.Context(), ContextUserKey, data.UserID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
