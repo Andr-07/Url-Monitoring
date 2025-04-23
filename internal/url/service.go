@@ -15,8 +15,8 @@ func NewUrlService(urlRepository *repository.UrlRepository) *UrlService {
 
 func (service *UrlService) Create(userId uint, address string, interval int) (string, error) {
 	url, err := service.UrlRepository.Create(&models.URL{
-		UserID: userId,
-		Address: address,
+		UserID:   userId,
+		Address:  address,
 		Interval: interval,
 	})
 
@@ -27,3 +27,22 @@ func (service *UrlService) Create(userId uint, address string, interval int) (st
 	return url.Address, nil
 }
 
+func (service *UrlService) Delete(id, userId uint) error {
+	err := service.UrlRepository.Delete(id, userId)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (service *UrlService) GetAll(userId uint) ([]models.URL, error) {
+	urls, err := service.UrlRepository.FindByUser(userId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return urls, nil
+}
