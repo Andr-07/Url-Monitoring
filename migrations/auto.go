@@ -18,5 +18,5 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&models.User{},&models.URL{})
+	db.AutoMigrate(&models.User{},&models.URL{},&models.MonitorLog{})
 }

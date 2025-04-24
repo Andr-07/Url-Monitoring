@@ -3,6 +3,7 @@ package main
 import (
 	"go-monitoring/config"
 	"go-monitoring/internal/auth"
+	"go-monitoring/internal/monitor_log"
 	"go-monitoring/internal/repository"
 	"go-monitoring/internal/url"
 	"go-monitoring/pkg/db"
@@ -18,10 +19,12 @@ func main() {
 	// Repositories
 	userRepository := repository.NewUserRepository(db)
 	urlRepository := repository.NewUrlRepository(db)
+	monitorLogRepository := repository.NewMonitorLogRepository(db)
 
 	// Services
 	authService := auth.NewAuthService(userRepository)
 	urlService := url.NewUrlService(urlRepository)
+	monitorLogService := monitor_log.NewMonitorLogService(monitorLogRepository)
 
 	// Handlers
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
@@ -31,6 +34,10 @@ func main() {
 	url.NewUrlHandler(router, url.UrlHandlerDeps{
 		Config:     conf,
 		UrlService: urlService,
+	})
+	monitor_log.NewMonitorLogHandler(router, monitor_log.MonitorLogHandlerDeps{
+		Config:            conf,
+		MonitorLogService: monitorLogService,
 	})
 
 	log.Println("Server started on :8080")
