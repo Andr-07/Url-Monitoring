@@ -24,6 +24,16 @@ func (repo *UrlRepository) FindByUser(userId uint) ([]models.URL, error) {
 	return urls, nil
 }
 
+func (repo *UrlRepository) GetAll() ([]models.URL, error) {
+	var urls []models.URL
+	result := repo.Database.DB.Find(&urls)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return urls, nil
+}
+
+
 func (repo *UrlRepository) Create(url *models.URL) (*models.URL, error) {
 	result := repo.Database.DB.Create(url)
 	if result.Error != nil {

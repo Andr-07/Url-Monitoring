@@ -15,6 +15,7 @@ func main() {
 	conf := configs.LoadConfig()
 	db := db.NewDb(conf)
 	router := http.NewServeMux()
+	stopChan := make(chan struct{})
 
 	// Repositories
 	userRepository := repository.NewUserRepository(db)
@@ -24,7 +25,7 @@ func main() {
 	// Services
 	authService := auth.NewAuthService(userRepository)
 	urlService := url.NewUrlService(urlRepository)
-	monitorLogService := monitor_log.NewMonitorLogService(monitorLogRepository)
+	monitorLogService := monitor_log.NewMonitorLogService(monitorLogRepository, urlRepository, stopChan)
 
 	// Handlers
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
@@ -41,6 +42,7 @@ func main() {
 	})
 
 	log.Println("Server started on :8080")
+	monitorLogService.Start()
 	err := http.ListenAndServe(":8080", router)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
