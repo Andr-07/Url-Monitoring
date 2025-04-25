@@ -13,11 +13,10 @@ func NewUrlService(urlRepository *repository.UrlRepository) *UrlService {
 	return &UrlService{UrlRepository: urlRepository}
 }
 
-func (service *UrlService) Create(userId uint, address string, interval int) (string, error) {
+func (service *UrlService) Create(userId uint, address string) (string, error) {
 	url, err := service.UrlRepository.Create(&models.URL{
 		UserID:   userId,
 		Address:  address,
-		Interval: interval,
 	})
 
 	if err != nil {

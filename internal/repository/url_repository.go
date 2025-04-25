@@ -51,3 +51,13 @@ func (repo *UrlRepository) Delete(id, userId uint) error {
 	}
 	return nil
 }
+
+func (repo *UrlRepository) DeleteAll(id, userId uint) error {
+	result := repo.Database.DB.
+		Where("id = ? AND user_id = ?", id, userId).
+		Delete(&models.URL{})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}

@@ -7,6 +7,7 @@ import (
 	"go-monitoring/internal/repository"
 	"go-monitoring/internal/url"
 	"go-monitoring/pkg/db"
+	"go-monitoring/pkg/notifier/telegram"
 	"log"
 	"net/http"
 )
@@ -17,6 +18,9 @@ func main() {
 	router := http.NewServeMux()
 	stopChan := make(chan struct{})
 
+	// Externals
+	notifier :=telegram.NewTelegramNotifier(&conf.Telegram)
+
 	// Repositories
 	userRepository := repository.NewUserRepository(db)
 	urlRepository := repository.NewUrlRepository(db)
@@ -25,8 +29,8 @@ func main() {
 	// Services
 	authService := auth.NewAuthService(userRepository)
 	urlService := url.NewUrlService(urlRepository)
-	monitorLogService := monitor_log.NewMonitorLogService(monitorLogRepository, urlRepository, stopChan)
-
+	monitorLogService := monitor_log.NewMonitorLogService(monitorLogRepository, urlRepository, notifier, stopChan)
+	
 	// Handlers
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
 		Config:      conf,

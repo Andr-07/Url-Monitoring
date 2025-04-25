@@ -8,8 +8,14 @@ import (
 )
 
 type Config struct {
-	Db   DbConfig
-	Auth AuthConfig
+	Db       DbConfig
+	Auth     AuthConfig
+	Telegram TelegramConfig
+}
+
+type TelegramConfig struct {
+	BOT_TOKEN string
+	CHAT_ID   string
 }
 
 type DbConfig struct {
@@ -31,6 +37,10 @@ func LoadConfig() *Config {
 		},
 		Auth: AuthConfig{
 			Secret: os.Getenv("SECRET"),
+		},
+		Telegram: TelegramConfig{
+			BOT_TOKEN: os.Getenv("BOT_TOKEN"),
+			CHAT_ID: os.Getenv("CHAT_ID"),
 		},
 	}
 }

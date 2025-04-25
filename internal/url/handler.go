@@ -38,7 +38,7 @@ func (handler *UrlHandler) Create() http.HandlerFunc {
 		if err != nil {
 			return
 		}
-		address, err := handler.UrlService.Create(userId, body.Address, body.Interval)
+		address, err := handler.UrlService.Create(userId, body.Address)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

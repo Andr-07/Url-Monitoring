@@ -3,6 +3,7 @@ package repository
 import (
 	"go-monitoring/internal/models"
 	"go-monitoring/pkg/db"
+	"time"
 )
 
 type MonitorLogRepository struct {
@@ -30,4 +31,9 @@ func (repo *MonitorLogRepository) FindByUrl(urlId uint) ([]models.MonitorLog, er
 		return nil, result.Error
 	}
 	return logs, nil
+}
+
+func (repo *MonitorLogRepository) DeleteOldLogs() error {
+	threshold := time.Now().Add(-1 * time.Hour)
+	return repo.Database.Where("timestamp < ?", threshold).Delete(&models.MonitorLog{}).Error
 }

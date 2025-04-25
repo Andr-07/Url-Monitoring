@@ -1,8 +1,10 @@
 package monitor_log
 
 import (
+	"fmt"
 	"go-monitoring/internal/models"
 	"go-monitoring/internal/repository"
+	"go-monitoring/pkg/notifier"
 	"log"
 	"net/http"
 	"time"
@@ -11,17 +13,20 @@ import (
 type MonitorLogService struct {
 	MonitorLogRepository *repository.MonitorLogRepository
 	UrlRepository        *repository.UrlRepository
+	Notifier             notifier.Notifier
 	stopChan             chan struct{}
 }
 
 func NewMonitorLogService(
 	monitorLogRepository *repository.MonitorLogRepository,
 	urlRepository *repository.UrlRepository,
+	Notifier notifier.Notifier,
 	stopChan chan struct{},
 ) *MonitorLogService {
 	return &MonitorLogService{
 		MonitorLogRepository: monitorLogRepository,
 		UrlRepository:        urlRepository,
+		Notifier:             Notifier,
 		stopChan:             stopChan,
 	}
 }
@@ -43,6 +48,7 @@ func (service *MonitorLogService) Start() {
 
 		}
 	}()
+	go service.cleanupOldLogs()
 }
 
 func (service *MonitorLogService) checkUrls() {
@@ -75,6 +81,15 @@ func (service *MonitorLogService) checkOne(url models.URL) {
 			msg = resp.Status
 		}
 		resp.Body.Close()
+	}
+
+	if status == models.StatusFail {
+		err := service.Notifier.SendAlert(
+			fmt.Sprintf("🚨 URL %s недоступен! Код: %d. Ошибка: %s", url.Address, code, msg),
+		)
+		if err != nil {
+			log.Printf("Не удалось отправить Telegram-уведомление: %v", err)
+		}
 	}
 
 	service.Create(MonitorLogDto{
@@ -110,4 +125,17 @@ func (service *MonitorLogService) GetAll(urlId uint) ([]models.MonitorLog, error
 	}
 
 	return monitorLogs, nil
+}
+
+func (service *MonitorLogService) cleanupOldLogs() {
+	for {
+		select {
+		case <-time.After(1 * time.Hour):
+			if err := service.MonitorLogRepository.DeleteOldLogs(); err != nil {
+				log.Println("failed to delete old logs:", err)
+			}
+		case <-service.stopChan:
+			return
+		}
+	}
 }
