@@ -3,16 +3,20 @@ package auth
 import (
 	"errors"
 	"go-monitoring/internal/models"
-	"go-monitoring/internal/repository"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-type AuthService struct {
-	UserRepository *repository.UserRepository
+type UserRepository interface {
+	Create(user *models.User) (*models.User, error)
+	FindByEmail(email string) (*models.User, error)
 }
 
-func NewAuthService(userRepository *repository.UserRepository) *AuthService {
+type AuthService struct {
+	UserRepository UserRepository
+}
+
+func NewAuthService(userRepository UserRepository) *AuthService {
 	return &AuthService{UserRepository: userRepository}
 }
 
