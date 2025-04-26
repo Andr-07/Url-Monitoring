@@ -1,10 +1,9 @@
 package repository
 
 import (
-	"go-monitoring/pkg/db"
 	"go-monitoring/internal/models"
+	"go-monitoring/pkg/db"
 )
-
 
 type UserRepository struct {
 	Database *db.Db
@@ -32,4 +31,3 @@ func (repo *UserRepository) FindByEmail(email string) (*models.User, error) {
 	}
 	return &user, nil
 }
-

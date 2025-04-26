@@ -1,6 +1,6 @@
 package auth
 
 const (
-	ErrUserExists = "user exists"
+	ErrUserExists       = "user exists"
 	ErrWrongCredentials = "wrong credentials"
 )
