@@ -33,7 +33,6 @@ func (repo *UrlRepository) GetAll() ([]models.URL, error) {
 	return urls, nil
 }
 
-
 func (repo *UrlRepository) Create(url *models.URL) (*models.URL, error) {
 	result := repo.Database.DB.Create(url)
 	if result.Error != nil {

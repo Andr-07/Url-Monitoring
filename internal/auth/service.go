@@ -53,4 +53,3 @@ func (service *AuthService) Login(email, password string) (uint, error) {
 
 	return user.ID, nil
 }
-

@@ -19,7 +19,7 @@ func main() {
 	stopChan := make(chan struct{})
 
 	// Externals
-	notifier :=telegram.NewTelegramNotifier(&conf.Telegram)
+	notifier := telegram.NewTelegramNotifier(&conf.Telegram)
 
 	// Repositories
 	userRepository := repository.NewUserRepository(db)
@@ -30,7 +30,7 @@ func main() {
 	authService := auth.NewAuthService(userRepository)
 	urlService := url.NewUrlService(urlRepository)
 	monitorLogService := monitor_log.NewMonitorLogService(monitorLogRepository, urlRepository, notifier, stopChan)
-	
+
 	// Handlers
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
 		Config:      conf,

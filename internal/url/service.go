@@ -15,8 +15,8 @@ func NewUrlService(urlRepository *repository.UrlRepository) *UrlService {
 
 func (service *UrlService) Create(userId uint, address string) (string, error) {
 	url, err := service.UrlRepository.Create(&models.URL{
-		UserID:   userId,
-		Address:  address,
+		UserID:  userId,
+		Address: address,
 	})
 
 	if err != nil {

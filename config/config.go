@@ -40,7 +40,7 @@ func LoadConfig() *Config {
 		},
 		Telegram: TelegramConfig{
 			BOT_TOKEN: os.Getenv("BOT_TOKEN"),
-			CHAT_ID: os.Getenv("CHAT_ID"),
+			CHAT_ID:   os.Getenv("CHAT_ID"),
 		},
 	}
 }

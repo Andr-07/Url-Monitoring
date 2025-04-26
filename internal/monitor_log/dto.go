@@ -6,9 +6,9 @@ import (
 )
 
 type MonitorLogDto struct {
-	URLID     uint      
-	Timestamp time.Time 
-	Status    models.MonitorStatus   
-	HTTPCode  int       
-	Error     string   
+	URLID     uint
+	Timestamp time.Time
+	Status    models.MonitorStatus
+	HTTPCode  int
+	Error     string
 }
